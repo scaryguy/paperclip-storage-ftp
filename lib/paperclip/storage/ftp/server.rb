@@ -49,9 +49,13 @@ module Paperclip
 
         def file_exists?(path)
           pathname = Pathname.new(path)
-          connection.nlst(pathname.dirname.to_s).map{|f| File.basename f }.include?(pathname.basename.to_s)
-        rescue Net::FTPTempError
-          false
+          begin
+            connection.nlst(pathname.dirname.to_s).map{|f| File.basename f }.include?(pathname.basename.to_s)
+          rescue Net::FTPTempError
+            false
+          rescue Net::FTPPermError
+            false
+          end
         end
 
         def get_file(remote_file_path, local_file_path)
